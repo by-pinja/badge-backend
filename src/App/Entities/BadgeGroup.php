@@ -1,6 +1,6 @@
 <?php
 /**
- * /src/App/Entities/Badge.php
+ * /src/App/Entities/BadgeGroup.php
  *
  * @author  TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Swagger\Annotations as SWG;
 
 /**
- * BadgeGroup
+ * Class BadgeGroup
  *
  * @SWG\Definition(
  *      title="BadgeGroup",
