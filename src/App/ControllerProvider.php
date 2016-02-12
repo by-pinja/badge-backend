@@ -99,6 +99,5 @@ class ControllerProvider implements ControllerProviderInterface
     {
         $this->app->mount('/', new Controllers\IndexController());
         $this->app->mount('/auth', new Controllers\AuthController());
-        $this->app->mount('/author', new Controllers\AuthorController());
     }
 }

@@ -35,6 +35,6 @@ class IndexController extends Base
      */
     public function index()
     {
-        return $this->app->redirect('api/api-docs');
+        return $this->app->redirect('/api-docs');
     }
 }
