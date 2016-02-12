@@ -23,7 +23,13 @@ $ php composer.phar install
 * Create web-server configuration which points to ```web``` folder
 
 ### Configuration
-TODO
+Add your ```local.yml``` configuration file to some (or all) following directories:
+ * ```resources/config/common```
+ * ```resources/config/dev```
+ * ```resources/config/prod```
+
+Within this file you can override any environment or common configuration value as you like. Basically first thing to
+do is define _your_ database settings - without these you can't basically do anything...
 
 ### Database initialization
 This can be done with following command:
