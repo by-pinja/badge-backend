@@ -20,7 +20,7 @@ use Swagger\Annotations as SWG;
  *
  * @SWG\Definition(
  *      title="Badge",
- *      description="Badge data as in JSON object",
+ *      description="Badge data",
  *      type="object",
  *      required={
  *          "title",
@@ -30,7 +30,7 @@ use Swagger\Annotations as SWG;
  *          "id": 1,
  *          "title": "first person to send brotacon message!",
  *      },
- * )
+ *  )
  *
  * @ORM\Table(
  *      name="badge",
