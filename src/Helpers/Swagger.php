@@ -19,19 +19,19 @@ use Swagger\Annotations as SWG;
  *      consumes={"application/json"},
  *      produces={"application/json"},
  *      @SWG\Info(
- *           title="silex-backend",
- *           description="Swagger API documentation for application",
- *           version="1.0.0",
+ *           title="badge-backend",
+ *           description="TODO",
+ *           version="0.0.1",
  *           @SWG\Contact(
  *               email="tarmo.leppanen@protacon.com",
  *               name="Tarmo Leppänen",
- *               url="https://github.com/tarlepp/silex-backend"
+ *               url="https://github.com/tarlepp"
  *           ),
  *           @SWG\License(
  *               name="MIT",
- *               url="https://github.com/tarlepp/silex-backend/blob/master/LICENSE"
- *           )
- *      )
+ *               url="https://github.com/ProtaconSolutions/badge-backend/blob/master/LICENSE"
+ *           ),
+ *      ),
  *  )
  *
  * @SWG\Definition(
