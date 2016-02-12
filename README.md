@@ -22,8 +22,17 @@ $ php composer.phar install
 * Open terminal and clone this repository to your server
 * Create web-server configuration which points to ```web``` folder
 
-## Configuration
+### Configuration
 TODO
+
+### Database initialization
+This can be done with following command:
+```
+./bin/console migrations:migrate
+```
+
+### Possible "failures"
+* Missing ```var``` directory? Create it and check that it has proper write access in other words just do ```chmod 777 var``` 
 
 ## Nice to know things
 ```GET http://yoururl/_dump```
