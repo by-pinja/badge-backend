@@ -146,4 +146,5 @@ class BadgeGroup implements JsonSerializable
             'name'          => $this->getName(),
             'description'   => $this->getDescription(),
         ];
-    }}
+    }
+}
