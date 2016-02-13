@@ -3,7 +3,13 @@
 Badge JSON API which is build on top of [Silex](http://silex.sensiolabs.org/) framework.
 
 ## Main points
-* This is just an API, nothing else
+- [x] Configuration for each environment and/or developer
+- [x] Authentication via JWT
+- [x] "Automatic" API doc generation
+- [ ] Basic API for badges
+- [ ] Basic API for badge groups
+- [ ] Basic API for images
+- [ ] And all the rest...
 
 ## Requirements
 * PHP 5.5.x
