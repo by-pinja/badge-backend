@@ -6,6 +6,8 @@ Badge JSON API which is build on top of [Silex](http://silex.sensiolabs.org/) fr
 - [x] Configuration for each environment and/or developer
 - [x] Authentication via JWT
 - [x] "Automatic" API doc generation
+- [x] Database connection (Doctrine dbal + orm)
+- [x] Console tools (dbal, migrations, orm)
 - [ ] Basic API for badges
 - [ ] Basic API for badge groups
 - [ ] Basic API for images
