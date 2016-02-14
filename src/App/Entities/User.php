@@ -196,6 +196,18 @@ class User implements JsonSerializable
     }
 
     /**
+     * Getter method for user identifier, this can be username or email.
+     *
+     * @todo    How to determine which one this is?
+     *
+     * @return  string
+     */
+    public function getIdentifier()
+    {
+        return $this->username;
+    }
+
+    /**
      * @param string $username
      *
      * @return User
@@ -265,6 +277,18 @@ class User implements JsonSerializable
         $this->roles = $roles;
 
         return $this;
+    }
+
+    /**
+     * Method to verify given password against hashed one.
+     *
+     * @param   string  $password
+     *
+     * @return  bool
+     */
+    public function verifyPassword($password)
+    {
+        return password_verify($password, $this->password);
     }
 
     /**

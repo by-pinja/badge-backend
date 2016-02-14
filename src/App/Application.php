@@ -206,6 +206,10 @@ class Application extends SilexApplication
 
         // Security Firewalls configuration
         $this['security.firewalls'] = [
+            // CORS preflight requests
+            'cors-preflight' => array(
+                'pattern' => $this['cors_preflight_request_matcher'],
+            ),
             // Root route
             'root' => [
                 'pattern'   => '^/$',
@@ -221,10 +225,6 @@ class Application extends SilexApplication
                 'pattern'   => '^/_dump$',
                 'anonymous' => true,
             ],
-            // CORS preflight requests
-            'cors-preflight' => array(
-                'pattern' => $this['cors_preflight_request_matcher'],
-            ),
             // API docs are also anonymous
             'docs' => [
                 'pattern'   => '^/api',
