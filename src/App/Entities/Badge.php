@@ -49,9 +49,11 @@ use Swagger\Annotations as SWG;
  *          ),
  *      },
  *  )
- * @ORM\Entity
+ * @ORM\Entity(
+ *      repositoryClass="App\Repositories\Badge"
+ *  )
  *
- * @category    Core
+ * @category    Doctrine
  * @package     App\Entities
  * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */

@@ -44,7 +44,13 @@ use Swagger\Annotations as SWG;
  *          ),
  *      },
  *  )
- * @ORM\Entity
+ * @ORM\Entity(
+ *      repositoryClass="App\Repositories\ImageRepository"
+ *  )
+ *
+ * @category    Doctrine
+ * @package     App\Entities
+ * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
 class Image implements JsonSerializable
 {

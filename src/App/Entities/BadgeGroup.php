@@ -31,10 +31,17 @@ use Swagger\Annotations as SWG;
  *          "description": "First hackday for the new year - good luck everyone!",
  *      },
  *  )
+ *
  * @ORM\Table(
  *      name="badge_group"
  *  )
- * @ORM\Entity
+ * @ORM\Entity(
+ *      repositoryClass="App\Repositories\BadgeGroup"
+ *  )
+ *
+ * @category    Doctrine
+ * @package     App\Entities
+ * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
 class BadgeGroup implements JsonSerializable
 {

@@ -54,7 +54,13 @@ use Swagger\Annotations as SWG;
  *          ),
  *      },
  *  )
- * @ORM\Entity
+ * @ORM\Entity(
+ *      repositoryClass="App\Repositories\User"
+ *  )
+ *
+ * @category    Doctrine
+ * @package     App\Entities
+ * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
 class User implements AdvancedUserInterface, JsonSerializable
 {
