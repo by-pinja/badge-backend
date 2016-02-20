@@ -52,7 +52,7 @@ use Swagger\Annotations as SWG;
  * @package     App\Entities
  * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
-class Image implements JsonSerializable
+class Image extends Base implements JsonSerializable
 {
     /**
      * Image id

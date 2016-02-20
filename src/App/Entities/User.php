@@ -62,7 +62,7 @@ use Swagger\Annotations as SWG;
  * @package     App\Entities
  * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
-class User implements AdvancedUserInterface, JsonSerializable
+class User extends Base implements AdvancedUserInterface, JsonSerializable
 {
     /**
      * User id

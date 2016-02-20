@@ -57,7 +57,7 @@ use Swagger\Annotations as SWG;
  * @package     App\Entities
  * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
-class Badge implements JsonSerializable
+class Badge extends Base implements JsonSerializable
 {
     /**
      * Badge ID
