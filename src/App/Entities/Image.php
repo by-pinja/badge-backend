@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 // 3rd party components
 use Swagger\Annotations as SWG;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class Image
@@ -231,7 +232,6 @@ class Image extends Base implements JsonSerializable
             'hash'      => $this->getHash(),
             'filename'  => $this->getFilename(),
             'mime'      => $this->getMime(),
-            'data'      => $this->getData(),
         ];
     }
 }
