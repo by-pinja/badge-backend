@@ -19,7 +19,9 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validator\RecursiveValidator;
 
 /**
- * Class Base
+ * Class Rest
+ *
+ * This abstract class contains a base of every REST service that application has.
  *
  * @todo How to implement COUNT functionality?
  * @todo How to handle WHERE param?
@@ -29,7 +31,7 @@ use Symfony\Component\Validator\Validator\RecursiveValidator;
  * @package     App\Services
  * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
-class Rest extends Base implements Interfaces\Rest
+abstract class Rest extends Base implements Interfaces\Rest
 {
     /**
      * Name of the repository that current REST API will use.
@@ -66,6 +68,8 @@ class Rest extends Base implements Interfaces\Rest
      * @param   Connection         $db
      * @param   EntityManager      $entityManager
      * @param   RecursiveValidator $validator
+     *
+     * @return  Rest
      */
     public function __construct(Connection $db, EntityManager $entityManager, RecursiveValidator $validator)
     {
