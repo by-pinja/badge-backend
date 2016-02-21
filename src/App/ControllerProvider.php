@@ -6,7 +6,10 @@
  */
 namespace App;
 
+// Application components
 use Silex\Application as App;
+
+// Silex components
 use Silex\ControllerCollection;
 use Silex\ControllerProviderInterface;
 
@@ -80,7 +83,7 @@ class ControllerProvider implements ControllerProviderInterface
                     'line'          => $exception->getLine(),
                     'trace'         => $exception->getTrace(),
                     'traceString'   => $exception->getTraceAsString(),
-                ]
+                ],
             ];
         }
 
@@ -99,5 +102,6 @@ class ControllerProvider implements ControllerProviderInterface
     {
         $this->app->mount('/', new Controllers\IndexController());
         $this->app->mount('/auth', new Controllers\AuthController());
+        $this->app->mount('/badge', new Controllers\BadgeController());
     }
 }
