@@ -22,7 +22,7 @@ use Silex\ControllerCollection;
 abstract class Base implements ControllerProviderInterface, Interfaces\Base
 {
     /**
-     * @var Application
+     * @var \App\Application
      */
     protected $app;
 
