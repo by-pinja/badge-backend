@@ -43,5 +43,9 @@ class Loader
         $this->app['badge.service'] = $this->app->share(function() {
             return new Badge($this->app['db'], $this->app['orm.em'], $this->app['validator']);
         });
+
+        $this->app['image.service'] = $this->app->share(function() {
+            return new Image($this->app['db'], $this->app['orm.em'], $this->app['validator']);
+        });
     }
 }
