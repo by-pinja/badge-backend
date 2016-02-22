@@ -46,7 +46,7 @@ use Symfony\Component\HttpFoundation\Request;
  *      },
  *  )
  * @ORM\Entity(
- *      repositoryClass="App\Repositories\ImageRepository"
+ *      repositoryClass="App\Repositories\Image"
  *  )
  *
  * @category    Doctrine
@@ -164,7 +164,7 @@ class Image extends Base implements JsonSerializable
     }
 
     /**
-     * @return string
+     * @return \Resource
      */
     public function getData()
     {
@@ -208,7 +208,7 @@ class Image extends Base implements JsonSerializable
     }
 
     /**
-     * @param string $data
+     * @param \Resource $data
      *
      * @return Image
      */
