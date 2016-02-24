@@ -18,6 +18,7 @@ use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 
 // 3rd party components
 use Swagger\Annotations as SWG;
+use Knp\DoctrineBehaviors\Model as ORMBehaviors;
 
 /**
  * User
@@ -64,6 +65,8 @@ use Swagger\Annotations as SWG;
  */
 class User extends Base implements AdvancedUserInterface, JsonSerializable
 {
+    use ORMBehaviors\Timestampable\Timestampable;
+
     /**
      * User id
      *
@@ -374,6 +377,8 @@ class User extends Base implements AdvancedUserInterface, JsonSerializable
             'surname'   => $this->getSurname(),
             'email'     => $this->getEmail(),
             'roles'     => $this->getRoles(),
+            'createdAt' => $this->getCreatedAtJson(),
+            'updatedAt' => $this->getUpdatedAtJson(),
         ];
     }
 

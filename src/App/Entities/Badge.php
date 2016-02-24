@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 // 3rd party components
 use Swagger\Annotations as SWG;
+use Knp\DoctrineBehaviors\Model as ORMBehaviors;
 
 /**
  * Class Badge
@@ -59,6 +60,8 @@ use Swagger\Annotations as SWG;
  */
 class Badge extends Base implements JsonSerializable
 {
+    use ORMBehaviors\Timestampable\Timestampable;
+
     /**
      * Badge ID
      *
@@ -313,6 +316,8 @@ class Badge extends Base implements JsonSerializable
             'badgeGroup'    => $this->getBadgeGroup(),
             'image'         => $this->getImage(),
             'user'          => $this->getUser(),
+            'createdAt'     => $this->getCreatedAtJson(),
+            'updatedAt'     => $this->getUpdatedAtJson(),
         ];
     }
 }
