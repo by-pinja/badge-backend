@@ -97,6 +97,8 @@ class AuthController extends Base
 
         // Oh noes, we have some errors
         if (count($errors) > 0) {
+            $this->app['logger']->error((string)$errors);
+
             throw new HttpException(400, 'Invalid data');
         }
 
@@ -112,6 +114,8 @@ class AuthController extends Base
                 return $this->app->json(['token' => $this->app['security.jwt.encoder']->encode($userData)]);
             }
         } catch (\Exception $error) {
+            $this->app['logger']->error((string)$error);
+
             throw new HttpException(401, 'Unauthorized', $error);
         }
 
