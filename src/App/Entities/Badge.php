@@ -30,6 +30,100 @@ use Knp\DoctrineBehaviors\Model as ORMBehaviors;
  *      example={
  *          "id": 1,
  *          "title": "first person to send brotacon message!",
+ *          "description": "Some detailed description",
+ *          "icon": "foobar",
+ *          "badgeGroup": {
+ *              "id": 1,
+ *              "name": "Hackday",
+ *              "description": "Badges for hackday",
+ *              "createdAt": "2016-02-25T18:46:05+00:00",
+ *              "createdBy": {
+ *                  "id": 1,
+ *                  "username": "admin",
+ *                  "firstname": "Arnold",
+ *                  "surname": "Administrator",
+ *                  "email": "arnold@foobar.com",
+ *                  "roles": {
+ *                      "ROLE_USER",
+ *                      "ROLE_ADMIN",
+ *                  },
+ *                  "createdAt": "2016-02-20T16:32:09+00:00",
+ *                  "createdBy": null,
+ *                  "updatedAt": null,
+ *                  "updatedBy": null,
+ *              },
+ *              "updatedAt": null,
+ *              "updatedBy": null
+ *          },
+ *          "image": {
+ *              "hash": "65c35182-d7f0-11e5-885a-0800273a5c86",
+ *              "filename": "test.png",
+ *              "mime": "image/png",
+ *              "createdAt": "2016-02-23T18:46:05+00:00",
+ *              "createdBy": {
+ *                  "id": 1,
+ *                  "username": "admin",
+ *                  "firstname": "Arnold",
+ *                  "surname": "Administrator",
+ *                  "email": "arnold@foobar.com",
+ *                  "roles": {
+ *                      "ROLE_USER",
+ *                      "ROLE_ADMIN",
+ *                  },
+ *                  "createdAt": "2016-02-20T16:32:09+00:00",
+ *                  "createdBy": null,
+ *                  "updatedAt": null,
+ *                  "updatedBy": null,
+ *              },
+ *              "updatedAt": null,
+ *              "updatedBy": null
+ *          },
+ *          "user": {
+ *              "id": 2,
+ *              "username": "john",
+ *              "firstname": "John",
+ *              "surname": "Doe",
+ *              "email": "john.doe@foobar.com",
+ *              "roles": {
+ *                  "ROLE_USER"
+ *              },
+ *              "createdAt": "2016-02-25T18:46:05+00:00",
+ *              "createdBy": {
+ *                  "id": 1,
+ *                  "username": "admin",
+ *                  "firstname": "Arnold",
+ *                  "surname": "Administrator",
+ *                  "email": "arnold@foobar.com",
+ *                  "roles": {
+ *                      "ROLE_USER",
+ *                      "ROLE_ADMIN",
+ *                  },
+ *                  "createdAt": "2016-02-20T16:32:09+00:00",
+ *                  "createdBy": null,
+ *                  "updatedAt": null,
+ *                  "updatedBy": null,
+ *              },
+ *              "updatedAt": null,
+ *              "updatedBy": null,
+ *          },
+ *          "createdAt": "2016-02-25T18:46:05+00:00",
+ *          "createdBy": {
+ *              "id": 1,
+ *              "username": "admin",
+ *              "firstname": "Arnold",
+ *              "surname": "Administrator",
+ *              "email": "arnold@foobar.com",
+ *              "roles": {
+ *                  "ROLE_USER",
+ *                  "ROLE_ADMIN",
+ *              },
+ *              "createdAt": "2016-02-20T16:32:09+00:00",
+ *              "createdBy": null,
+ *              "updatedAt": null,
+ *              "updatedBy": null,
+ *          },
+ *          "updatedAt": null,
+ *          "updatedBy": null,
  *      },
  *  )
  *
@@ -48,6 +142,18 @@ use Knp\DoctrineBehaviors\Model as ORMBehaviors;
  *              name="fk_badge_user_id",
  *              columns={"user_id"}
  *          ),
+ *          @ORM\Index(
+ *              name="createdBy_id",
+ *              columns={"createdBy_id"}
+ *          ),
+ *          @ORM\Index(
+ *              name="updatedBy_id",
+ *              columns={"updatedBy_id"}
+ *          ),
+ *          @ORM\Index(
+ *              name="deletedBy_id",
+ *              columns={"updatedBy_id"}
+ *          ),
  *      },
  *  )
  * @ORM\Entity(
@@ -60,6 +166,7 @@ use Knp\DoctrineBehaviors\Model as ORMBehaviors;
  */
 class Badge extends Base implements JsonSerializable
 {
+    use ORMBehaviors\Blameable\Blameable;
     use ORMBehaviors\Timestampable\Timestampable;
 
     /**
@@ -96,7 +203,7 @@ class Badge extends Base implements JsonSerializable
     /**
      * Description of the badge
      *
-     * @var string
+     * @var null|string
      *
      * @SWG\Property()
      * @ORM\Column(
@@ -111,7 +218,7 @@ class Badge extends Base implements JsonSerializable
     /**
      * Icon definition for the badge, [optional]
      *
-     * @var string
+     * @var null|string
      *
      * @SWG\Property()
      * @ORM\Column(
@@ -142,7 +249,7 @@ class Badge extends Base implements JsonSerializable
     /**
      * Image for the badge, [optional]
      *
-     * @var \App\Entities\Image
+     * @var null|\App\Entities\Image
      *
      * @SWG\Property()
      * @ORM\ManyToOne(targetEntity="App\Entities\Image")
@@ -150,6 +257,7 @@ class Badge extends Base implements JsonSerializable
      *      @ORM\JoinColumn(
      *          name="image_id",
      *          referencedColumnName="id",
+     *          nullable=true
      *      ),
      *  })
      */
@@ -158,7 +266,7 @@ class Badge extends Base implements JsonSerializable
     /**
      * User who achieved this badge
      *
-     * @var \App\Entities\User
+     * @var null|\App\Entities\User
      *
      * @SWG\Property()
      * @ORM\ManyToOne(targetEntity="App\Entities\User")
@@ -188,7 +296,7 @@ class Badge extends Base implements JsonSerializable
     }
 
     /**
-     * @return string
+     * @return null|string
      */
     public function getDescription()
     {
@@ -196,7 +304,7 @@ class Badge extends Base implements JsonSerializable
     }
 
     /**
-     * @return string
+     * @return null|string
      */
     public function getIcon()
     {
@@ -204,7 +312,7 @@ class Badge extends Base implements JsonSerializable
     }
 
     /**
-     * @return BadgeGroup
+     * @return null|BadgeGroup
      */
     public function getBadgeGroup()
     {
@@ -212,7 +320,7 @@ class Badge extends Base implements JsonSerializable
     }
 
     /**
-     * @return Image
+     * @return null|Image
      */
     public function getImage()
     {
@@ -220,7 +328,7 @@ class Badge extends Base implements JsonSerializable
     }
 
     /**
-     * @return User
+     * @return null|User
      */
     public function getUser()
     {
@@ -317,7 +425,9 @@ class Badge extends Base implements JsonSerializable
             'image'         => $this->getImage(),
             'user'          => $this->getUser(),
             'createdAt'     => $this->getCreatedAtJson(),
+            'createdBy'     => $this->getCreatedBy(),
             'updatedAt'     => $this->getUpdatedAtJson(),
+            'updatedBy'     => $this->getUpdatedBy(),
         ];
     }
 }

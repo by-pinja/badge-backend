@@ -30,11 +30,43 @@ use Knp\DoctrineBehaviors\Model as ORMBehaviors;
  *          "id": 1,
  *          "name": "1st Hackday 2016",
  *          "description": "First hackday for the new year - good luck everyone!",
+ *          "createdAt": "2016-02-25T18:46:05+00:00",
+ *          "createdBy": {
+ *              "id": 1,
+ *              "username": "admin",
+ *              "firstname": "Arnold",
+ *              "surname": "Administrator",
+ *              "email": "arnold@foobar.com",
+ *              "roles": {
+ *                  "ROLE_USER",
+ *                  "ROLE_ADMIN",
+ *              },
+ *              "createdAt": "2016-02-20T16:32:09+00:00",
+ *              "createdBy": null,
+ *              "updatedAt": null,
+ *              "updatedBy": null,
+ *          },
+ *          "updatedAt": null,
+ *          "updatedBy": null,
  *      },
  *  )
  *
  * @ORM\Table(
- *      name="badge_group"
+ *      name="badge_group",
+ *      indexes={
+ *          @ORM\Index(
+ *              name="createdBy_id",
+ *              columns={"createdBy_id"}
+ *          ),
+ *          @ORM\Index(
+ *              name="updatedBy_id",
+ *              columns={"updatedBy_id"}
+ *          ),
+ *          @ORM\Index(
+ *              name="deletedBy_id",
+ *              columns={"updatedBy_id"}
+ *          ),
+ *      },
  *  )
  * @ORM\Entity(
  *      repositoryClass="App\Repositories\BadgeGroup"
@@ -46,6 +78,7 @@ use Knp\DoctrineBehaviors\Model as ORMBehaviors;
  */
 class BadgeGroup extends Base implements JsonSerializable
 {
+    use ORMBehaviors\Blameable\Blameable;
     use ORMBehaviors\Timestampable\Timestampable;
 
     /**
@@ -82,7 +115,7 @@ class BadgeGroup extends Base implements JsonSerializable
     /**
      * Description of the badge group
      *
-     * @var string
+     * @var null|string
      *
      * @SWG\Property()
      * @ORM\Column(
@@ -156,7 +189,9 @@ class BadgeGroup extends Base implements JsonSerializable
             'name'          => $this->getName(),
             'description'   => $this->getDescription(),
             'createdAt'     => $this->getCreatedAtJson(),
+            'createdBy'     => $this->getCreatedBy(),
             'updatedAt'     => $this->getUpdatedAtJson(),
+            'updatedBy'     => $this->getUpdatedBy(),
         ];
     }
 }

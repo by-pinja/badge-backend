@@ -21,7 +21,7 @@ use Swagger\Annotations as SWG;
 use Knp\DoctrineBehaviors\Model as ORMBehaviors;
 
 /**
- * User
+ * Class User
  *
  * @SWG\Definition(
  *      title="User",
@@ -34,16 +34,51 @@ use Knp\DoctrineBehaviors\Model as ORMBehaviors;
  *          "email",
  *      },
  *      example={
- *          "id": 1,
- *          "username": "admin",
- *          "firstname": "Arnold",
- *          "surname": "Administrator",
- *          "email": "arnold@foobar.com",
+ *          "id": 2,
+ *          "username": "john",
+ *          "firstname": "John",
+ *          "surname": "Doe",
+ *          "email": "john.doe@foobar.com",
+ *          "roles": {
+ *              "ROLE_USER"
+ *          },
+ *          "createdAt": "2016-02-25T18:46:05+00:00",
+ *          "createdBy": {
+ *              "id": 1,
+ *              "username": "admin",
+ *              "firstname": "Arnold",
+ *              "surname": "Administrator",
+ *              "email": "arnold@foobar.com",
+ *              "roles": {
+ *                  "ROLE_USER",
+ *                  "ROLE_ADMIN",
+ *              },
+ *              "createdAt": "2016-02-20T16:32:09+00:00",
+ *              "createdBy": null,
+ *              "updatedAt": null,
+ *              "updatedBy": null,
+ *          },
+ *          "updatedAt": null,
+ *          "updatedBy": null,
  *      },
  *  )
  *
  * @ORM\Table(
  *      name="user",
+ *      indexes={
+ *          @ORM\Index(
+ *              name="createdBy_id",
+ *              columns={"createdBy_id"}
+ *          ),
+ *          @ORM\Index(
+ *              name="updatedBy_id",
+ *              columns={"updatedBy_id"}
+ *          ),
+ *          @ORM\Index(
+ *              name="deletedBy_id",
+ *              columns={"updatedBy_id"}
+ *          ),
+ *      },
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(
  *              name="uq_username",
@@ -65,6 +100,7 @@ use Knp\DoctrineBehaviors\Model as ORMBehaviors;
  */
 class User extends Base implements AdvancedUserInterface, JsonSerializable
 {
+    use ORMBehaviors\Blameable\Blameable;
     use ORMBehaviors\Timestampable\Timestampable;
 
     /**
@@ -378,7 +414,9 @@ class User extends Base implements AdvancedUserInterface, JsonSerializable
             'email'     => $this->getEmail(),
             'roles'     => $this->getRoles(),
             'createdAt' => $this->getCreatedAtJson(),
+            'createdBy' => $this->getCreatedBy(),
             'updatedAt' => $this->getUpdatedAtJson(),
+            'updatedBy' => $this->getUpdatedBy(),
         ];
     }
 

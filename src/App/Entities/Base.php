@@ -24,12 +24,13 @@ use Knp\DoctrineBehaviors\Model as ORMBehaviors;
  */
 abstract class Base
 {
+    use ORMBehaviors\Blameable\Blameable;
     use ORMBehaviors\Timestampable\Timestampable;
 
     /**
      * Created at datetime.
      *
-     * @var \DateTime
+     * @var null|\DateTime
      *
      * @SWG\Property()
      * @ORM\Column(
@@ -41,9 +42,26 @@ abstract class Base
     protected $createdAt;
 
     /**
+     * Created user
+     *
+     * @var null|\App\Entities\User
+     *
+     * @SWG\Property()
+     * @ORM\ManyToOne(targetEntity="App\Entities\User")
+     * @ORM\JoinColumns({
+     *      @ORM\JoinColumn(
+     *          name="createdBy_id",
+     *          referencedColumnName="id",
+     *          nullable=true
+     *      ),
+     *  })
+     */
+    protected $createdBy;
+
+    /**
      * Updated at datetime.
      *
-     * @var \DateTime
+     * @var null|\DateTime
      *
      * @SWG\Property()
      * @ORM\Column(
@@ -53,6 +71,23 @@ abstract class Base
      *  )
      */
     protected $updatedAt;
+
+    /**
+     * Updated user
+     *
+     * @var null|\App\Entities\User
+     *
+     * @SWG\Property()
+     * @ORM\ManyToOne(targetEntity="App\Entities\User")
+     * @ORM\JoinColumns({
+     *      @ORM\JoinColumn(
+     *          name="createdBy_id",
+     *          referencedColumnName="id",
+     *          nullable=true
+     *      ),
+     *  })
+     */
+    protected $updatedBy;
 
     /**
      * Getter method for 'createdAt' attribute for JSON output.
