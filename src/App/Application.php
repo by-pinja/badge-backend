@@ -14,8 +14,6 @@ use App\Providers\SecurityServiceProvider as ApplicationSecurityServiceProvider;
 use App\Services\Loader;
 
 // Silex components
-use Knp\DoctrineBehaviors\ORM\Timestampable\TimestampableSubscriber;
-use Knp\DoctrineBehaviors\Reflection\ClassAnalyzer;
 use Silex\Application as SilexApplication;
 use Silex\Provider\DoctrineServiceProvider;
 use Silex\Provider\MonologServiceProvider;
@@ -28,6 +26,9 @@ use Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider;
 use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use Sorien\Provider\PimpleDumpProvider;
 use M1\Vars\Provider\Silex\VarsServiceProvider;
+use Knp\DoctrineBehaviors\ORM\Blameable\BlameableSubscriber;
+use Knp\DoctrineBehaviors\ORM\Timestampable\TimestampableSubscriber;
+use Knp\DoctrineBehaviors\Reflection\ClassAnalyzer;
 
 // Symfony components
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
@@ -287,6 +288,24 @@ class Application extends SilexApplication
                 false,
                 'Knp\DoctrineBehaviors\Model\Timestampable\Timestampable',
                 'datetime'
+            )
+        );
+
+        $app = $this;
+
+        // Callback to get current user
+        $userCallback = function() use ($app) {
+            return $app['user'];
+        };
+
+        // Register 'blameable' behaviour
+        $this['orm.em']->getEventManager()->addEventSubscriber(
+            new BlameableSubscriber(
+                new ClassAnalyzer(),
+                false,
+                'Knp\DoctrineBehaviors\Model\Blameable\Blameable',
+                $userCallback,
+                '\App\Entities\User'
             )
         );
     }
