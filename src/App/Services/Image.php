@@ -42,6 +42,7 @@ class Image extends Rest
      */
     public function findOneByHash($hash)
     {
+        /** @var Entity $image */
         return $this->getRepository()->findOneBy(['hash' => $hash]);
     }
 }
