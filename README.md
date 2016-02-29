@@ -1,7 +1,7 @@
 # What is this?
 [![License](http://img.shields.io/:license-mit-blue.svg)](LICENSE)
 [![GitHub version](https://badge.fury.io/gh/ProtaconSolutions%2Fbadge-backend.svg)](https://badge.fury.io/gh/ProtaconSolutions%2Fbadge-backend)
-[![Dependency Status](https://www.versioneye.com/user/projects/56d48fc30a4ec1002d2f89ff/badge.svg?style=flat)](https://www.versioneye.com/user/projects/56d48fc30a4ec1002d2f89ff)
+[![Dependency Status](https://www.versioneye.com/user/projects/56d4b8330a4ec127393b476f/badge.svg?style=flat)](https://www.versioneye.com/user/projects/56d4b8330a4ec127393b476f)
 
 Badge JSON API which is build on top of [Silex](http://silex.sensiolabs.org/) framework.
 
