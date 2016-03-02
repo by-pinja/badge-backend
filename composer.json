@@ -31,5 +31,10 @@
       "role": "developer"
     }
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "config": {
+    "github-oauth": {
+      "github.com": "1bfd0452eb775996af7bf7291e4d3c9c31dcbd50"
+    }
+  }
 }
