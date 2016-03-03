@@ -1,22 +1,22 @@
-# set the base image first
+# Set the base image first
 FROM php:5.5-cli
 
-# specify maintainer
+# Specify maintainer(s)
 MAINTAINER Tarmo Leppänen <tarmo.leppanen@protacon.com>
 
 # Basics
 RUN apt-get update && apt-get install -y git-core curl
 
-# PHP stuff
+# PHP packages and extensions
 RUN apt-get update && apt-get install -y \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libmcrypt-dev \
-        libpng12-dev \
-    && docker-php-ext-install -j$(nproc) mcrypt \
-    && docker-php-ext-install -j$(nproc) zip \
-    && cp /usr/src/php/php.ini-production /usr/local/etc/php/php.ini \
-    && sed -i "s/^;date.timezone =$/date.timezone = \"UTC\"/" /usr/local/etc/php/php.ini
+    libmcrypt-dev \
+    libpng12-dev \
+  && docker-php-ext-install -j$(nproc) mcrypt \
+  && docker-php-ext-install -j$(nproc) zip
+
+# Copy production config and set default timezone
+RUN cp /usr/src/php/php.ini-production /usr/local/etc/php/php.ini \
+  && sed -i "s/^;date.timezone =$/date.timezone = \"UTC\"/" /usr/local/etc/php/php.ini
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
