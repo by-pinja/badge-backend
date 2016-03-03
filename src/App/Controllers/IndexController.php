@@ -7,6 +7,7 @@
 namespace App\Controllers;
 
 // Symfony components
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * This handles following route handling on application:
  *  GET /
+ *  GET /test
  *
  * @category    Controller
  * @package     App\Controllers
@@ -29,6 +31,7 @@ class IndexController extends Base
     public function registerRoutes()
     {
         $this->app->get('/', [$this, 'index']);
+        $this->app->get('/test', [$this, 'test']);
     }
 
     /**
@@ -41,5 +44,16 @@ class IndexController extends Base
     public function index(Request $request)
     {
         return $this->app->redirect($request->getBasePath() . '/api-docs');
+    }
+
+    /**
+     * This action is just for easy testing purposes, note that this route is not secured.
+     *
+     * @return JsonResponse
+     */
+    public function test()
+    {
+        // Just put your test code here... and remember to remove it afterwards
+        return $this->app->json(['test']);
     }
 }
