@@ -59,6 +59,29 @@ This can be done with following command:
 ```./bin/console orm:convert:mapping --from-database --namespace="App\\Entities\\" annotation ./src``` 
 * Generate Doctrine entities from database
 
+## Docker
+This project has also [Docker](https://www.docker.com/) container that you can use. Actual [Dockerfile](Dockerfile) uses [php:5.5-cli](https://github.com/docker-library/php/blob/8943e1e6a930768994fbc29f4df89d0a3fd65e12/5.5/Dockerfile) as the base image.
+
+You can easily build your own docker image with following command
+```
+docker build -t yourimage .
+```
+
+And after that run that docker image by following command
+```
+docker run -t -i yourimage
+```
+
+With this docker image you can set following ENV variables to specify your database connection:
+```
+DATABASE_DB_OPTIONS_DRIVER  
+DATABASE_DB_OPTIONS_HOST    
+DATABASE_DB_OPTIONS_DBNAME  
+DATABASE_DB_OPTIONS_USER    
+DATABASE_DB_OPTIONS_PASSWORD
+DATABASE_DB_OPTIONS_CHARSET
+```
+
 ## Contributing
 Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines.
 
