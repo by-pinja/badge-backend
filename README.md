@@ -5,6 +5,22 @@
 
 Badge JSON API which is build on top of [Silex](http://silex.sensiolabs.org/) framework.
 
+Table of Contents
+=================
+  * [What is this?](#what-is-this)
+    * [Main points](#main-points)
+    * [Requirements](#requirements)
+    * [Development](#development)
+    * [Installation](#installation)
+      * [Configuration](#configuration)
+      * [Database initialization](#database-initialization)
+      * [Possible "failures"](#possible-failures)
+    * [Nice to know things](#nice-to-know-things)
+    * [Docker](#docker)
+    * [Contributing](#contributing)
+    * [Author](#author)
+    * [LICENSE](#license)
+
 ## Main points
 - [x] Configuration for each environment and/or developer
 - [x] Authentication via JWT
