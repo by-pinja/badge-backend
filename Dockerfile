@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y \
     libmcrypt-dev \
     libpng12-dev \
   && docker-php-ext-install -j$(nproc) mcrypt \
+  && docker-php-ext-install -j$(nproc) pdo \
+  && docker-php-ext-install -j$(nproc) pdo_mysql \
   && docker-php-ext-install -j$(nproc) zip
 
 # Copy production config and set default timezone
