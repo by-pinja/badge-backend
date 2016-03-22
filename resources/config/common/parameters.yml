@@ -1,7 +1,7 @@
 #
 # /resources/config/common/parameters.yml
 #
-# This file contains common parameters for Silex application.
+# This file contains common parameters Silex application.
 #
 # Note that these settings are used IF any environment OR local specified settings are not configured. If you want to
 # override any of these values use environment specified file which is located in dev, prod or test directory. Note
@@ -10,9 +10,10 @@
 # If you just want to override these settings in your _own_ environment you can create 'local.yml' file and override
 # what ever you want to. Also note that this 'local.yml' can be created to any of following directories under config:
 #   - common
-#   - test
 #   - dev
+#   - cli-dev
 #   - prod
+#   - cli-prod
 #
 
 #
@@ -21,7 +22,7 @@
 # http://silex.sensiolabs.org/doc/providers/monolog.html
 #
 monolog:
-  monolog.logfile: %rootDir%/var/logs/app.log
+  monolog.logfile: %rootDir%var/logs/app.log
 
 #
 # SwaggerServiceProvider parameters
@@ -32,4 +33,19 @@ swagger:
   srcDir: %rootDir%vendor/zircote/swagger-php/src
   servicePath: %rootDir%src
 
+#
+# Pimple Container Dumper - Helper for https://github.com/Sorien/silex-idea-plugin
+#
+# https://github.com/Sorien/silex-pimple-dumper
+#
 pimpledump.output_dir: %rootDir%var
+
+#
+# JMS serializer options
+#
+# https://github.com/jdesrosiers/silex-jms-serializer-provider#parameters
+#
+jms.serializer:
+  serializer.srcDir: %rootDir%vendor/jms/serializer/src
+  serializer.cacheDir: %rootDir%var/serializer
+  serializer.namingStrategy: IdenticalProperty

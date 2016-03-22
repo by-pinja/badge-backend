@@ -1,6 +1,8 @@
 <?php
 /**
- * /src/App/Controllers/AuthController.php
+ * /src/App/Controllers/Auth.php
+ *
+ * safs
  *
  * @author  TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
@@ -18,17 +20,19 @@ use JsonMapper;
 use Swagger\Annotations as SWG;
 
 /**
- * Class AuthController
+ * Class Auth
  *
  * This handles following route handling on application:
  *  POST    /auth/login
  *  GET     /auth/profile
  *
+ * @mountPoint  /auth
+ *
  * @category    Controller
  * @package     App\Controllers
  * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
-class AuthController extends Base
+class Auth extends Base
 {
     /**
      * Method to register all routes for current controller. Note that all routes contains "auth" prefix.
@@ -97,8 +101,6 @@ class AuthController extends Base
 
         // Oh noes, we have some errors
         if (count($errors) > 0) {
-            $this->app['logger']->error((string)$errors);
-
             throw new HttpException(400, 'Invalid data');
         }
 
@@ -107,15 +109,16 @@ class AuthController extends Base
             $user = $this->app['users']->loadUserByUsername($login->getIdentifier());
 
             if ($user->verifyPassword($login->getPassword())) {
-                $userData = $user->jsonSerialize();
-                $userData['identifier'] = $user->getIdentifier();
+
+                //return $this->makeResponse($user, 200);
+
+
+                $userData = $user->getLoginData();
 
                 // Return token response
                 return $this->app->json(['token' => $this->app['security.jwt.encoder']->encode($userData)]);
             }
         } catch (\Exception $error) {
-            $this->app['logger']->error((string)$error);
-
             throw new HttpException(401, 'Unauthorized', $error);
         }
 
@@ -156,6 +159,6 @@ class AuthController extends Base
      */
     public function profile()
     {
-        return $this->app->json($this->app['user']);
+        return $this->makeResponse($this->app['user'], 200);
     }
 }

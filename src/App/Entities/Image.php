@@ -6,15 +6,15 @@
  */
 namespace App\Entities;
 
-// Native components
-use JsonSerializable;
+// Application components
+use App\Doctrine\Behaviours as ORMBehaviors;
 
 // Doctrine components
 use Doctrine\ORM\Mapping as ORM;
 
 // 3rd party components
 use Swagger\Annotations as SWG;
-use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * Class Image
@@ -84,10 +84,11 @@ use Knp\DoctrineBehaviors\Model as ORMBehaviors;
  * @package     App\Entities
  * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
-class Image extends Base implements JsonSerializable
+class Image extends Base
 {
-    use ORMBehaviors\Blameable\Blameable;
-    use ORMBehaviors\Timestampable\Timestampable;
+    // Traits
+    use ORMBehaviors\Blameable;
+    use ORMBehaviors\Timestampable;
 
     /**
      * Image id
@@ -95,6 +96,8 @@ class Image extends Base implements JsonSerializable
      * @var integer
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "Image", "ImageId"})
+     *
      * @ORM\Column(
      *      name="id",
      *      type="integer",
@@ -111,6 +114,8 @@ class Image extends Base implements JsonSerializable
      * @var string
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "Image"})
+     *
      * @ORM\Column(
      *      name="hash",
      *      type="string",
@@ -126,6 +131,8 @@ class Image extends Base implements JsonSerializable
      * @var string
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "Image"})
+     *
      * @ORM\Column(
      *      name="filename",
      *      type="string",
@@ -141,6 +148,8 @@ class Image extends Base implements JsonSerializable
      * @var string
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "Image"})
+     *
      * @ORM\Column(
      *      name="mime",
      *      type="string",
@@ -164,6 +173,21 @@ class Image extends Base implements JsonSerializable
      *  )
      */
     private $data;
+
+    /**
+     * Group badges
+     *
+     * @var \App\Entities\Badge[]
+     *
+     * @SWG\Property()
+     * @JMS\Groups({"Badges"})
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="App\Entities\Badge",
+     *      mappedBy="image"
+     *  )
+     */
+    private $badges;
 
     /**
      * @return int
@@ -203,6 +227,14 @@ class Image extends Base implements JsonSerializable
     public function getData()
     {
         return $this->data;
+    }
+
+    /**
+     * @return Badge[]
+     */
+    public function getBadges()
+    {
+        return $this->badges;
     }
 
     /**
@@ -251,25 +283,5 @@ class Image extends Base implements JsonSerializable
         $this->data = $data;
 
         return $this;
-    }
-
-    /**
-     * Specify data which should be serialized to JSON
-     *
-     * @link  http://php.net/manual/en/jsonserializable.jsonserialize.php
-     *
-     * @return  array   data which can be serialized by json_encode, which is a value of any type other than a resource.
-     */
-    function jsonSerialize()
-    {
-        return [
-            'hash'      => $this->getHash(),
-            'filename'  => $this->getFilename(),
-            'mime'      => $this->getMime(),
-            'createdAt' => $this->getCreatedAtJson(),
-            'createdBy' => $this->getCreatedBy(),
-            'updatedAt' => $this->getUpdatedAtJson(),
-            'updatedBy' => $this->getUpdatedBy(),
-        ];
     }
 }

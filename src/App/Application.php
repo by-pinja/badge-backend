@@ -7,10 +7,12 @@
 namespace App;
 
 // Application components
-use App\DoctrineExtensions\DBAL\Types\UTCDateTimeType;
 use App\Components\Swagger\SwaggerServiceProvider;
+use App\Doctrine\DBAL\Types\UTCDateTimeType;
+use App\Providers\ControllerProvider;
+use App\Providers\JmsSerializerServiceProvider;
 use App\Providers\UserProvider;
-use App\Providers\SecurityServiceProvider as ApplicationSecurityServiceProvider;
+use App\Providers\SecurityServiceProvider;
 use App\Services\Loader;
 
 // Silex components
@@ -18,7 +20,6 @@ use Silex\Application as SilexApplication;
 use Silex\Provider\DoctrineServiceProvider;
 use Silex\Provider\MonologServiceProvider;
 use Silex\Provider\SecurityJWTServiceProvider;
-use Silex\Provider\SecurityServiceProvider;
 use Silex\Provider\ValidatorServiceProvider;
 
 // 3rd components
@@ -39,7 +40,6 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 // Doctrine components
 use Doctrine\DBAL\Types\Type;
-
 
 /**
  * Class Application
@@ -82,19 +82,22 @@ class Application extends SilexApplication
         parent::__construct();
 
         // Create application configuration
-        $this->applicationConfig();
+        $this->config();
+
+        // Attach application listeners
+        $this->listeners();
 
         // Register all necessary providers
-        $this->applicationRegister();
+        $this->providers();
 
         // Configure application firewall
-        $this->applicationFirewall();
+        $this->firewall();
 
         // Load services
-        $this->loadServices();
+        $this->services();
 
         // Attach application mount points
-        $this->applicationMount();
+        $this->mounts();
 
         // Configure database (DBAL + ORM)
         $this->doctrineConfig();
@@ -128,13 +131,16 @@ class Application extends SilexApplication
      *
      * @return  void
      */
-    private function applicationConfig()
+    protected function config()
     {
         $this->checkEnvironmentVariables();
 
+        // Add 'cli-' prefix if running console application
+        $prefix = php_sapi_name() === 'cli' ? 'cli-' : '';
+
         // Register configuration provider
         $this->register(
-            new VarsServiceProvider($this->rootDir . 'resources/config/' . $this->env . '/config.yml'),
+            new VarsServiceProvider($this->rootDir . 'resources/config/' . $prefix . $this->env . '/config.yml'),
             [
                 'vars.options' => [
                     'cache'         => true,
@@ -155,13 +161,12 @@ class Application extends SilexApplication
     }
 
     /**
-     * Method to register all specified providers for application.
+     * Method to attach all necessary listeners to application.
      *
-     * @return  void
+     * @return void
      */
-    private function applicationRegister()
+    protected function listeners()
     {
-        // Todo move this somewhere else!
         $this['dispatcher']->addListener('kernel.exception', function(GetResponseForExceptionEvent $event) {
             $exception = $event->getException();
 
@@ -185,11 +190,17 @@ class Application extends SilexApplication
                 $event->setResponse($response);
             }
         });
+    }
 
-        // Register all providers for application
+    /**
+     * Method to register all specified providers for application.
+     *
+     * @return  void
+     */
+    protected function providers()
+    {
         $this->register(new ValidatorServiceProvider());
         $this->register(new SecurityServiceProvider());
-        $this->register(new ApplicationSecurityServiceProvider());
         $this->register(new SecurityJWTServiceProvider());
         $this->register(new PimpleDumpProvider());
         $this->register(new MonologServiceProvider(), $this['vars']->get('monolog'));
@@ -197,6 +208,7 @@ class Application extends SilexApplication
         $this->register(new DoctrineOrmServiceProvider(), $this['vars']->get('orm'));
         $this->register(new CorsServiceProvider(), $this['vars']->get('cors'));
         $this->register(new SwaggerServiceProvider(), $this['vars']->get('swagger'));
+        $this->register(new JmsSerializerServiceProvider(), $this['vars']->get('jms.serializer'));
     }
 
     /**
@@ -206,7 +218,7 @@ class Application extends SilexApplication
      *
      * @return  array
      */
-    private function applicationFirewall()
+    protected function firewall()
     {
         $entityManager = $this['orm.em'];
         $app = $this;
@@ -218,18 +230,9 @@ class Application extends SilexApplication
 
         // Security Firewalls configuration
         $this['security.firewalls'] = [
-            // CORS preflight requests
-            'cors-preflight' => array(
-                'pattern' => $this['cors_preflight_request_matcher'],
-            ),
             // Root route
             'root' => [
                 'pattern'   => '^/$',
-                'anonymous' => true,
-            ],
-            // Route for testing purposes
-            'test' => [
-                'pattern'   => '^/test$',
                 'anonymous' => true,
             ],
             // Login route
@@ -237,10 +240,19 @@ class Application extends SilexApplication
                 'pattern'   => '^/auth/login$',
                 'anonymous' => true,
             ],
+            // Test route
+            'test' => [
+                'pattern'   => '^/test$',
+                'anonymous' => true,
+            ],
             // Pimple dump
             'pimpleDump' => [
                 'pattern'   => '^/_dump$',
                 'anonymous' => true,
+            ],
+            // CORS preflight requests
+            'cors-preflight' => [
+                'pattern' => $this['cors_preflight_request_matcher'],
             ],
             // API docs are also anonymous
             'docs' => [
@@ -261,11 +273,22 @@ class Application extends SilexApplication
     }
 
     /**
+     * Load shared services.
+     *
+     * @return  void
+     */
+    protected function services()
+    {
+        $loader = new Loader($this);
+        $loader->bindServices();
+    }
+
+    /**
      * Method to attach main mount point to be handled via ControllerProvider.
      *
      * @return  void
      */
-    private function applicationMount()
+    protected function mounts()
     {
         // Register all application routes
         $this->mount('', new ControllerProvider());
@@ -277,26 +300,17 @@ class Application extends SilexApplication
      *      - To ensure that we're storing all the datetimes as in UTC time
      *  2) Register used event behaviours for ORM
      *      - Timestampable
+     *      - blameable
      *
      * @throws  \Doctrine\DBAL\DBALException
      *
      * @return  void
      */
-    private function doctrineConfig()
+    protected function doctrineConfig()
     {
         // Override DateTime and DateTimeTz types
         Type::overrideType('datetime', UTCDateTimeType::class);
         Type::overrideType('datetimetz', UTCDateTimeType::class);
-
-        // Register 'Timestampable' behaviour
-        $this['orm.em']->getEventManager()->addEventSubscriber(
-            new TimestampableSubscriber(
-                new ClassAnalyzer(),
-                false,
-                'Knp\DoctrineBehaviors\Model\Timestampable\Timestampable',
-                'datetime'
-            )
-        );
 
         $app = $this;
 
@@ -305,27 +319,26 @@ class Application extends SilexApplication
             return $app['user'];
         };
 
+        // Register 'Timestampable' behaviour
+        $this['orm.em']->getEventManager()->addEventSubscriber(
+            new TimestampableSubscriber(
+                new ClassAnalyzer(),
+                false,
+                'App\Doctrine\Behaviours\Timestampable',
+                'datetime'
+            )
+        );
+
         // Register 'blameable' behaviour
         $this['orm.em']->getEventManager()->addEventSubscriber(
             new BlameableSubscriber(
                 new ClassAnalyzer(),
                 false,
-                'Knp\DoctrineBehaviors\Model\Blameable\Blameable',
+                'App\Doctrine\Behaviours\Blameable',
                 $userCallback,
                 '\App\Entities\User'
             )
         );
-    }
-
-    /**
-     * Load shared services.
-     *
-     * @return  void
-     */
-    private function loadServices()
-    {
-        $loader = new Loader($this);
-        $loader->bindServicesIntoContainer();
     }
 
     /**
@@ -344,7 +357,7 @@ class Application extends SilexApplication
         $vars = [
             'DATABASE_DB_OPTIONS_DRIVER'    => 'pdo_mysql',
             'DATABASE_DB_OPTIONS_HOST'      => 'localhost',
-            'DATABASE_DB_OPTIONS_DBNAME'    => 'ptcs_badge',
+            'DATABASE_DB_OPTIONS_DBNAME'    => 'silex_backend',
             'DATABASE_DB_OPTIONS_USER'      => 'silex',
             'DATABASE_DB_OPTIONS_PASSWORD'  => 'silex',
             'DATABASE_DB_OPTIONS_CHARSET'   => 'utf8mb4',

@@ -1,12 +1,13 @@
 <?php
 /**
- * /src/App/Services/Base.php
+ * /src/App/Services/Rest.php
  *
  * @author  TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
 namespace App\Services;
 
-use App\Entities\Base as BaseEntity;
+// Application components
+use App\Entities\Base as Entity;
 
 // Doctrine components
 use Doctrine\DBAL\Connection;
@@ -21,11 +22,7 @@ use Symfony\Component\Validator\Validator\RecursiveValidator;
 /**
  * Class Rest
  *
- * This abstract class contains a base of every REST service that application has.
- *
  * @todo How to implement COUNT functionality?
- * @todo How to handle WHERE param?
- * @todo Is there need to paginate 'find' method results?
  *
  * @category    Services
  * @package     App\Services
@@ -68,8 +65,6 @@ abstract class Rest extends Base implements Interfaces\Rest
      * @param   Connection         $db
      * @param   EntityManager      $entityManager
      * @param   RecursiveValidator $validator
-     *
-     * @return  Rest
      */
     public function __construct(Connection $db, EntityManager $entityManager, RecursiveValidator $validator)
     {
@@ -82,6 +77,16 @@ abstract class Rest extends Base implements Interfaces\Rest
         if (is_null($this->repositoryName)) {
             throw new \Exception('You need to specify used repository... Add \'repositoryName\' property to your class');
         }
+    }
+
+    /**
+     * Getter method for entity manager.
+     *
+     * @return  EntityManager
+     */
+    public function getEntityManager()
+    {
+        return $this->entityManager;
     }
 
     /**
@@ -101,16 +106,57 @@ abstract class Rest extends Base implements Interfaces\Rest
     }
 
     /**
+     * Gets a reference to the entity identified by the given type and identifier without actually loading it,
+     * if the entity is not yet loaded.
+     *
+     * @throws  \Doctrine\ORM\ORMException
+     *
+     * @param   mixed   $id The entity identifier.
+     *
+     * @return  bool|\Doctrine\Common\Proxy\Proxy|null|object
+     */
+    public function getReference($id)
+    {
+        return $this->entityManager->getReference($this->repositoryName, $id);
+    }
+
+    /**
+     * Getter method for all associations that current entity contains.
+     *
+     * @return array
+     */
+    public function getAssociations()
+    {
+        return array_keys($this->entityManager->getClassMetadata($this->repositoryName)->getAssociationMappings());
+    }
+
+    /**
      * Generic find method to return an array of items from database. Return value is an array of specified repository
      * entities.
      *
-     * @todo How to handle WHERE condition?
+     * @param   array           $criteria
+     * @param   null|array      $orderBy
+     * @param   null|integer    $limit
+     * @param   null|integer    $offset
      *
-     * @return  BaseEntity[]
+     * @return  Entity[]
      */
-    public function find()
+    public function find(array $criteria = [], array $orderBy = null, $limit = null, $offset = null)
     {
-        return $this->getRepository()->findAll();
+        // Before callback method call
+        if (method_exists($this, 'beforeFind')) {
+            $this->beforeFind($criteria, $orderBy, $limit, $offset);
+        }
+
+        // Fetch data
+        $entities = $this->getRepository()->findBy($criteria, $orderBy, $limit, $offset);
+
+        // After callback method call
+        if (method_exists($this, 'afterFind')) {
+            $this->afterFind($criteria, $orderBy, $limit, $offset, $entities);
+        }
+
+        return $entities;
     }
 
     /**
@@ -119,11 +165,49 @@ abstract class Rest extends Base implements Interfaces\Rest
      *
      * @param   integer $id
      *
-     * @return  null|BaseEntity
+     * @return  null|Entity
      */
     public function findOne($id)
     {
-        return $this->getRepository()->find($id);
+        // Before callback method call
+        if (method_exists($this, 'beforeFindOne')) {
+            $this->beforeFindOne($id);
+        }
+
+        $entity = $this->getRepository()->find($id);
+
+        // After callback method call
+        if (method_exists($this, 'afterFindOne')) {
+            $this->afterFindOne($id, $entity);
+        }
+
+        return $entity;
+    }
+
+    /**
+     * Generic findOneBy method to return single item from database by given criteria. Return value is single entity
+     * from specified repository or null if entity was not found.
+     *
+     * @param   array       $criteria
+     * @param   null|array  $orderBy
+     *
+     * @return  null|Entity
+     */
+    public function findOneBy(array $criteria, array $orderBy = null)
+    {
+        // Before callback method call
+        if (method_exists($this, 'beforeFindOneBy')) {
+            $this->beforeFindOneBy($criteria, $orderBy);
+        }
+
+        $entity = $this->getRepository()->findOneBy($criteria, $orderBy);
+
+        // After callback method call
+        if (method_exists($this, 'afterFindOneBy')) {
+            $this->afterFindOneBy($criteria, $orderBy, $entity);
+        }
+
+        return $entity;
     }
 
     /**
@@ -132,11 +216,11 @@ abstract class Rest extends Base implements Interfaces\Rest
      *
      * @throws  ValidatorException
      *
-     * @param   array|\stdClass $data
+     * @param   \stdClass   $data
      *
-     * @return  BaseEntity
+     * @return  Entity
      */
-    public function create($data)
+    public function create(\stdClass $data)
     {
         // Determine entity name
         $entity = $this->getRepository()->getClassName();
@@ -144,12 +228,22 @@ abstract class Rest extends Base implements Interfaces\Rest
         /**
          * Create new entity
          *
-         * @var BaseEntity $entity
+         * @var Entity $entity
          */
         $entity = new $entity();
 
+        // Before callback method call
+        if (method_exists($this, 'beforeCreate')) {
+            $this->beforeCreate($data, $entity);
+        }
+
         // Create or update entity
-        $this->createOrUpdateEntity($entity, $data);
+        $this->persistEntity($entity, $data);
+
+        // After callback method call
+        if (method_exists($this, 'afterCreate')) {
+            $this->afterCreate($data, $entity);
+        }
 
         return $entity;
     }
@@ -160,14 +254,14 @@ abstract class Rest extends Base implements Interfaces\Rest
      * @throws  HttpException
      * @throws  ValidatorException
      *
-     * @param   integer         $id
-     * @param   array|\stdClass $data
+     * @param   integer     $id
+     * @param   \stdClass   $data
      *
-     * @return  BaseEntity
+     * @return  Entity
      */
-    public function update($id, $data)
+    public function update($id, \stdClass $data)
     {
-        /** @var BaseEntity $entity */
+        /** @var Entity $entity */
         $entity = $this->getRepository()->find($id);
 
         // Entity not found
@@ -175,8 +269,18 @@ abstract class Rest extends Base implements Interfaces\Rest
             throw new HttpException(404, 'Not found');
         }
 
+        // Before callback method call
+        if (method_exists($this, 'beforeUpdate')) {
+            $this->beforeUpdate($id, $data, $entity);
+        }
+
         // Create or update entity
-        $this->createOrUpdateEntity($entity, $data);
+        $this->persistEntity($entity, $data);
+
+        // After callback method call
+        if (method_exists($this, 'afterUpdate')) {
+            $this->afterUpdate($id, $data, $entity);
+        }
 
         return $entity;
     }
@@ -186,11 +290,11 @@ abstract class Rest extends Base implements Interfaces\Rest
      *
      * @param   integer $id
      *
-     * @return  BaseEntity
+     * @return  Entity
      */
     public function delete($id)
     {
-        /** @var BaseEntity $entity */
+        /** @var Entity $entity */
         $entity = $this->getRepository()->find($id);
 
         // Entity not found
@@ -198,11 +302,131 @@ abstract class Rest extends Base implements Interfaces\Rest
             throw new HttpException(404, 'Not found');
         }
 
+        // Before callback method call
+        if (method_exists($this, 'beforeDelete')) {
+            $this->beforeDelete($id, $entity);
+        }
+
+        // And remove entity from repo
         $this->entityManager->remove($entity);
         $this->entityManager->flush($entity);
 
+        // After callback method call
+        if (method_exists($this, 'afterDelete')) {
+            $this->afterDelete($id, $entity);
+        }
+
         return $entity;
     }
+
+    /**
+     * Before lifecycle method for find method.
+     *
+     * @param   array           $criteria
+     * @param   null|array      $orderBy
+     * @param   null|integer    $limit
+     * @param   null|integer    $offset
+     */
+    public function beforeFind(array &$criteria = [], array &$orderBy = null, &$limit = null, &$offset = null) { }
+
+    /**
+     * After lifecycle method for find method.
+     *
+     * @param   array        $criteria
+     * @param   null|array   $orderBy
+     * @param   null|integer $limit
+     * @param   null|integer $offset
+     * @param   Entity[]     $entities
+     */
+    public function afterFind(
+        array &$criteria = [],
+        array &$orderBy = null,
+        &$limit = null,
+        &$offset = null,
+        array &$entities = []
+    ) { }
+
+    /**
+     * Before lifecycle method for findOne method.
+     *
+     * @param   integer $id
+     */
+    public function beforeFindOne(&$id) { }
+
+    /**
+     * After lifecycle method for findOne method.
+     *
+     * @param   integer     $id
+     * @param   null|Entity $entity
+     */
+    public function afterFindOne(&$id, Entity $entity = null) { }
+
+    /**
+     * Before lifecycle method for findOneBy method.
+     *
+     * @param   array       $criteria
+     * @param   null|array  $orderBy
+     */
+    public function beforeFindOneBy(array &$criteria, array &$orderBy = null) { }
+
+    /**
+     * After lifecycle method for findOneBy method.
+     *
+     * @param   array       $criteria
+     * @param   null|array  $orderBy
+     * @param   null|Entity $entity
+     */
+    public function afterFindOneBy(array &$criteria, array &$orderBy = null,  Entity $entity = null) { }
+
+    /**
+     * Before lifecycle method for create method.
+     *
+     * @param   \stdClass   $data
+     * @param   Entity      $entity
+     */
+    public function beforeCreate(\stdClass $data, Entity $entity) { }
+
+    /**
+     * After lifecycle method for create method.
+     *
+     * @param   \stdClass   $data
+     * @param   Entity      $entity
+     */
+    public function afterCreate(\stdClass $data, Entity $entity) { }
+
+    /**
+     * Before lifecycle method for update method.
+     *
+     * @param   integer     $id
+     * @param   \stdClass   $data
+     * @param   Entity      $entity
+     */
+    public function beforeUpdate(&$id, \stdClass $data, Entity $entity) { }
+
+    /**
+     * After lifecycle method for update method.
+     *
+     * @param   integer     $id
+     * @param   \stdClass   $data
+     * @param   Entity      $entity
+     */
+    public function afterUpdate(&$id, \stdClass $data, Entity $entity) { }
+
+    /**
+     * Before lifecycle method for delete method.
+     *
+     * @param   Entity  $entity
+     * @param   integer $id
+     */
+    public function beforeDelete(&$id, Entity $entity) { }
+
+    /**
+     * After lifecycle method for delete method.
+     *
+     * @param   Entity  $entity
+     * @param   integer $id
+     */
+    public function afterDelete(&$id, Entity $entity) { }
 
     /**
      * Helper method to set data to specified entity and store it to database.
@@ -212,15 +436,25 @@ abstract class Rest extends Base implements Interfaces\Rest
      *
      * @throws  ValidatorException
      *
-     * @param   BaseEntity      $entity
-     * @param   array|\stdClass $data
+     * @param   Entity      $entity
+     * @param   \stdClass   $data
      *
      * @return  void
      */
-    protected function createOrUpdateEntity(BaseEntity $entity, $data)
+    protected function persistEntity(Entity $entity, \stdClass $data)
     {
+        // Specify properties that are not allowed to update by user
+        $ignoreProperties = [
+            'createdAt', 'createdBy',
+            'updatedAt', 'updatedBy',
+        ];
+
         // Iterate given data
         foreach ($data as $property => $value) {
+            if (in_array($property, $ignoreProperties)) {
+                continue;
+            }
+
             // Specify setter method for current property
             $method = sprintf(
                 'set%s',

@@ -18,11 +18,13 @@ use App\Entities\Image as Entity;
  * @package     App\Services
  * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  *
- * @method  Entity[]    find()
- * @method  Entity      findOne($id)
- * @method  Entity      create($data)
- * @method  Entity      update($id, $data)
- * @method  Entity      delete($id)
+ * @method  Entity          getReference($id)
+ * @method  Entity[]        find(array $criteria = [], array $orderBy = null, $limit = null, $offset = null)
+ * @method  null|Entity     findOne($id)
+ * @method  null|Entity     findOneBy(array $criteria, array $orderBy = null)
+ * @method  Entity          create(\stdClass $data)
+ * @method  Entity          update($id, \stdClass $data)
+ * @method  Entity          delete($id)
  */
 class Image extends Rest
 {

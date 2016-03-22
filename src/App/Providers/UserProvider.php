@@ -128,7 +128,6 @@ class UserProvider implements UserProviderInterface
      */
     public function getUser($id)
     {
-        return $this->entityManager
-            ->find('App\Entities\User', $id);
+        return $this->entityManager->find('App\Entities\User', $id);
     }
 }

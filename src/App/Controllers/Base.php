@@ -6,9 +6,12 @@
  */
 namespace App\Controllers;
 
+// Silex components
+use JMS\Serializer\SerializationContext;
 use Silex\Application;
 use Silex\ControllerProviderInterface;
 use Silex\ControllerCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class Base
@@ -22,7 +25,7 @@ use Silex\ControllerCollection;
 abstract class Base implements ControllerProviderInterface, Interfaces\Base
 {
     /**
-     * @var \App\Application
+     * @var Application
      */
     protected $app;
 
@@ -48,5 +51,27 @@ abstract class Base implements ControllerProviderInterface, Interfaces\Base
         $this->registerRoutes();
 
         return $this->controllers;
+    }
+
+    /**
+     * Helper method to make JSON response.
+     *
+     * @param   null|string|Entity|Entity[]    $data
+     * @param   integer                        $statusCode
+     * @param   null|SerializationContext      $context
+     *
+     * @return  Response
+     */
+    protected function makeResponse($data, $statusCode = 200, SerializationContext $context = null)
+    {
+        // Create new response
+        $response = new Response();
+        $response->setContent(
+            (empty($data) && is_string($data)) ? '' : $this->app['serializer']->serialize($data, 'json', $context)
+        );
+        $response->setStatusCode($statusCode);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
     }
 }

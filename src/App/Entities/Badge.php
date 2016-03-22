@@ -6,15 +6,15 @@
  */
 namespace App\Entities;
 
-// Native components
-use JsonSerializable;
+// Application components
+use App\Doctrine\Behaviours as ORMBehaviors;
 
 // Doctrine components
 use Doctrine\ORM\Mapping as ORM;
 
 // 3rd party components
 use Swagger\Annotations as SWG;
-use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * Class Badge
@@ -164,10 +164,11 @@ use Knp\DoctrineBehaviors\Model as ORMBehaviors;
  * @package     App\Entities
  * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
-class Badge extends Base implements JsonSerializable
+class Badge extends Base
 {
-    use ORMBehaviors\Blameable\Blameable;
-    use ORMBehaviors\Timestampable\Timestampable;
+    // Traits
+    use ORMBehaviors\Blameable;
+    use ORMBehaviors\Timestampable;
 
     /**
      * Badge ID
@@ -175,6 +176,8 @@ class Badge extends Base implements JsonSerializable
      * @var integer
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "Badge", "BadgeId"})
+     *
      * @ORM\Column(
      *      name="id",
      *      type="integer",
@@ -191,6 +194,8 @@ class Badge extends Base implements JsonSerializable
      * @var string
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "Badge"})
+     *
      * @ORM\Column(
      *      name="title",
      *      type="string",
@@ -206,6 +211,8 @@ class Badge extends Base implements JsonSerializable
      * @var null|string
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "Badge"})
+     *
      * @ORM\Column(
      *      name="description",
      *      type="text",
@@ -221,6 +228,8 @@ class Badge extends Base implements JsonSerializable
      * @var null|string
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "Badge"})
+     *
      * @ORM\Column(
      *      name="icon",
      *      type="string",
@@ -236,6 +245,8 @@ class Badge extends Base implements JsonSerializable
      * @var \App\Entities\BadgeGroup
      *
      * @SWG\Property()
+     * @JMS\Groups({"BadgeGroup", "BadgeGroupId})
+     *
      * @ORM\ManyToOne(targetEntity="App\Entities\BadgeGroup")
      * @ORM\JoinColumns({
      *      @ORM\JoinColumn(
@@ -252,6 +263,8 @@ class Badge extends Base implements JsonSerializable
      * @var null|\App\Entities\Image
      *
      * @SWG\Property()
+     * @JMS\Groups({"Image", "ImageId})
+     *
      * @ORM\ManyToOne(targetEntity="App\Entities\Image")
      * @ORM\JoinColumns({
      *      @ORM\JoinColumn(
@@ -269,6 +282,8 @@ class Badge extends Base implements JsonSerializable
      * @var null|\App\Entities\User
      *
      * @SWG\Property()
+     * @JMS\Groups({"User", "UserId})
+     *
      * @ORM\ManyToOne(targetEntity="App\Entities\User")
      * @ORM\JoinColumns({
      *      @ORM\JoinColumn(
@@ -405,29 +420,5 @@ class Badge extends Base implements JsonSerializable
         $this->user = $user;
 
         return $this;
-    }
-
-    /**
-     * Specify data which should be serialized to JSON
-     *
-     * @link  http://php.net/manual/en/jsonserializable.jsonserialize.php
-     *
-     * @return  array   data which can be serialized by json_encode, which is a value of any type other than a resource.
-     */
-    function jsonSerialize()
-    {
-        return [
-            'id'            => $this->getId(),
-            'title'         => $this->getTitle(),
-            'description'   => $this->getDescription(),
-            'icon'          => $this->getIcon(),
-            'badgeGroup'    => $this->getBadgeGroup(),
-            'image'         => $this->getImage(),
-            'user'          => $this->getUser(),
-            'createdAt'     => $this->getCreatedAtJson(),
-            'createdBy'     => $this->getCreatedBy(),
-            'updatedAt'     => $this->getUpdatedAtJson(),
-            'updatedBy'     => $this->getUpdatedBy(),
-        ];
     }
 }

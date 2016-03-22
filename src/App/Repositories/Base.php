@@ -13,7 +13,7 @@ use App\Entities;
 use Doctrine\ORM\EntityRepository;
 
 /**
- * Class Base
+ * Base doctrine repository class for entities.
  *
  * @category    Doctrine
  * @package     App\Repositories
@@ -21,4 +21,5 @@ use Doctrine\ORM\EntityRepository;
  */
 abstract class Base extends EntityRepository
 {
+    // Implement custom entity query methods here
 }

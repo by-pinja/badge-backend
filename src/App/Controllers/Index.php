@@ -1,27 +1,28 @@
 <?php
 /**
- * /src/App/Controllers/IndexController.php
+ * /src/App/Controllers/Index.php
  *
  * @author  TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
 namespace App\Controllers;
 
 // Symfony components
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class IndexController
+ * Class Index
  *
  * This handles following route handling on application:
  *  GET /
  *  GET /test
  *
+ * @mountPoint  /
+ *
  * @category    Controller
  * @package     App\Controllers
  * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
-class IndexController extends Base
+class Index extends Base
 {
     /**
      * Method to register all routes for current controller.
@@ -39,7 +40,7 @@ class IndexController extends Base
      *
      * @param   Request $request
      *
-     * @return  string
+     * @return  \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function index(Request $request)
     {
@@ -47,13 +48,15 @@ class IndexController extends Base
     }
 
     /**
-     * This action is just for easy testing purposes, note that this route is not secured.
+     * This is just for testing what ever you might wanna test. Note that this route is public so don't ever commit
+     * your changes to this :D
      *
-     * @return JsonResponse
+     * @param   Request $request
+     *
+     * @return  string
      */
-    public function test()
+    public function test(Request $request)
     {
-        // Just put your test code here... and remember to remove it afterwards
-        return $this->app->json(['test']);
+        return $this->app["serializer"]->serialize($request->query->all(), 'json');
     }
 }

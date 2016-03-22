@@ -6,26 +6,26 @@
  */
 namespace App\Entities;
 
-// Native components
-use JsonSerializable;
-
-// Doctrine components
-use Doctrine\ORM\Mapping as ORM;
+// Application components
+use App\Doctrine\Behaviours as ORMBehaviors;
 
 // Symfony components
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 
+// Doctrine components
+use Doctrine\ORM\Mapping as ORM;
+
 // 3rd party components
 use Swagger\Annotations as SWG;
-use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * Class User
  *
  * @SWG\Definition(
  *      title="User",
- *      description="User data",
+ *      description="User data as in JSON object",
  *      type="object",
  *      required={
  *          "username",
@@ -34,51 +34,16 @@ use Knp\DoctrineBehaviors\Model as ORMBehaviors;
  *          "email",
  *      },
  *      example={
- *          "id": 2,
- *          "username": "john",
- *          "firstname": "John",
- *          "surname": "Doe",
- *          "email": "john.doe@foobar.com",
- *          "roles": {
- *              "ROLE_USER"
- *          },
- *          "createdAt": "2016-02-25T18:46:05+00:00",
- *          "createdBy": {
- *              "id": 1,
- *              "username": "admin",
- *              "firstname": "Arnold",
- *              "surname": "Administrator",
- *              "email": "arnold@foobar.com",
- *              "roles": {
- *                  "ROLE_USER",
- *                  "ROLE_ADMIN",
- *              },
- *              "createdAt": "2016-02-20T16:32:09+00:00",
- *              "createdBy": null,
- *              "updatedAt": null,
- *              "updatedBy": null,
- *          },
- *          "updatedAt": null,
- *          "updatedBy": null,
+ *          "id": 1,
+ *          "username": "admin",
+ *          "firstname": "Arnold",
+ *          "surname": "Administrator",
+ *          "email": "arnold@foobar.com",
  *      },
  *  )
  *
  * @ORM\Table(
  *      name="user",
- *      indexes={
- *          @ORM\Index(
- *              name="createdBy_id",
- *              columns={"createdBy_id"}
- *          ),
- *          @ORM\Index(
- *              name="updatedBy_id",
- *              columns={"updatedBy_id"}
- *          ),
- *          @ORM\Index(
- *              name="deletedBy_id",
- *              columns={"updatedBy_id"}
- *          ),
- *      },
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(
  *              name="uq_username",
@@ -94,25 +59,26 @@ use Knp\DoctrineBehaviors\Model as ORMBehaviors;
  *      repositoryClass="App\Repositories\User"
  *  )
  *
- * @category    Doctrine
- * @package     App\Entities
- * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
+ * @package App\Entities
  */
-class User extends Base implements AdvancedUserInterface, JsonSerializable
+class User extends Base implements AdvancedUserInterface
 {
-    use ORMBehaviors\Blameable\Blameable;
-    use ORMBehaviors\Timestampable\Timestampable;
+    // Traits
+    use ORMBehaviors\Blameable;
+    use ORMBehaviors\Timestampable;
 
     /**
-     * User id
+     * User ID
      *
      * @var integer
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "User", "CreatedBy", "UpdatedBy", "UserId"})
+     *
      * @ORM\Column(
      *      name="id",
      *      type="integer",
-     *      nullable=false,
+     *      nullable=false
      *  )
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
@@ -125,89 +91,104 @@ class User extends Base implements AdvancedUserInterface, JsonSerializable
      * @var string
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "User"})
+     *
      * @ORM\Column(
      *      name="username",
      *      type="string",
      *      length=255,
-     *      nullable=false,
+     *      nullable=false
      *  )
      */
     private $username;
 
     /**
-     * Firstname of the user
+     * Firstname
      *
      * @var string
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "User"})
+     *
      * @ORM\Column(
      *      name="firstname",
      *      type="string",
      *      length=255,
-     *      nullable=false,
+     *      nullable=false
      *  )
      */
     private $firstname;
 
     /**
-     * Surname of the user
+     * Surname
      *
      * @var string
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "User"})
+     *
      * @ORM\Column(
      *      name="surname",
      *      type="string",
      *      length=255,
-     *      nullable=false,
+     *      nullable=false
      *  )
      */
     private $surname;
 
     /**
-     * Email address of the user
+     * Email address
      *
      * @var string
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "User"})
+     *
      * @ORM\Column(
      *      name="email",
      *      type="string",
      *      length=255,
-     *      nullable=false,
+     *      nullable=false
      *  )
      */
     private $email;
 
     /**
+     * Hashed password.
+     *
      * @var string
      *
+     * @JMS\Exclude
      * @ORM\Column(
      *      name="password",
      *      type="string",
      *      length=255,
-     *      nullable=false,
+     *      nullable=false
      *  )
      */
     private $password;
 
     /**
-     * User roles
+     * User roles.
      *
      * @var string
      *
-     * @SWG\Property()
+     * @JMS\Accessor(getter="getRoles")
+     * @JMS\Groups({"Default", "Roles"})
+     *
      * @ORM\Column(
      *      name="roles",
      *      type="string",
      *      length=255,
-     *      nullable=false,
+     *      nullable=false
      *  )
      */
     private $roles;
 
     /**
-     * @return int
+     * Getter method for current user ID.
+     *
+     * @return  integer
      */
     public function getId()
     {
@@ -215,7 +196,9 @@ class User extends Base implements AdvancedUserInterface, JsonSerializable
     }
 
     /**
-     * @return string
+     * Returns the username used to authenticate the user.
+     *
+     * @return string The username
      */
     public function getUsername()
     {
@@ -223,6 +206,20 @@ class User extends Base implements AdvancedUserInterface, JsonSerializable
     }
 
     /**
+     * Getter method for user identifier, this can be username or email.
+     *
+     * @todo    How to determine which one this is?
+     *
+     * @return  string
+     */
+    public function getIdentifier()
+    {
+        return $this->username;
+    }
+
+    /**
+     * Getter for firstname.
+     *
      * @return string
      */
     public function getFirstname()
@@ -231,6 +228,8 @@ class User extends Base implements AdvancedUserInterface, JsonSerializable
     }
 
     /**
+     * Getter for surname.
+     *
      * @return string
      */
     public function getSurname()
@@ -239,6 +238,8 @@ class User extends Base implements AdvancedUserInterface, JsonSerializable
     }
 
     /**
+     * Getter for email.
+     *
      * @return string
      */
     public function getEmail()
@@ -247,12 +248,25 @@ class User extends Base implements AdvancedUserInterface, JsonSerializable
     }
 
     /**
+     * Returns the password used to authenticate the user.
+     *
+     * This should be the encoded password. On authentication, a plain-text
+     * password will be salted, encoded, and then compared to this value.
+     *
+     * @return string The password
+     */
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    /**
      * Returns the roles granted to the user.
      *
      * <code>
      * public function getRoles()
      * {
-     *     return array('ROLE_USER');
+     *     return ['ROLE_USER'];
      * }
      * </code>
      *
@@ -277,31 +291,6 @@ class User extends Base implements AdvancedUserInterface, JsonSerializable
     }
 
     /**
-     * Getter method for user identifier, this can be username or email.
-     *
-     * @todo    How to determine which one this is?
-     *
-     * @return  string
-     */
-    public function getIdentifier()
-    {
-        return $this->username;
-    }
-
-    /**
-     * Returns the password used to authenticate the user.
-     *
-     * This should be the encoded password. On authentication, a plain-text
-     * password will be salted, encoded, and then compared to this value.
-     *
-     * @return string The password
-     */
-    public function getPassword()
-    {
-        return $this->password;
-    }
-
-    /**
      * Returns the salt that was originally used to encode the password.
      *
      * This can return null if the password was not encoded using a salt.
@@ -314,75 +303,14 @@ class User extends Base implements AdvancedUserInterface, JsonSerializable
     }
 
     /**
-     * @param string $username
+     * Removes sensitive data from the user.
      *
-     * @return User
+     * This is important if, at any given point, sensitive information like
+     * the plain-text password is stored on this object.
      */
-    public function setUsername($username)
+    public function eraseCredentials()
     {
-        $this->username = $username;
-
-        return $this;
-    }
-
-    /**
-     * @param string $firstname
-     *
-     * @return User
-     */
-    public function setFirstname($firstname)
-    {
-        $this->firstname = $firstname;
-
-        return $this;
-    }
-
-    /**
-     * @param string $surname
-     *
-     * @return User
-     */
-    public function setSurname($surname)
-    {
-        $this->surname = $surname;
-
-        return $this;
-    }
-
-    /**
-     * @param string $email
-     *
-     * @return User
-     */
-    public function setEmail($email)
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    /**
-     * @param string $password
-     *
-     * @return User
-     */
-    public function setPassword($password)
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    /**
-     * @param string $roles
-     *
-     * @return User
-     */
-    public function setRoles($roles)
-    {
-        $this->roles = $roles;
-
-        return $this;
+        // TODO: Implement eraseCredentials() method.
     }
 
     /**
@@ -398,37 +326,14 @@ class User extends Base implements AdvancedUserInterface, JsonSerializable
     }
 
     /**
-     * Specify data which should be serialized to JSON
-     *
-     * @link  http://php.net/manual/en/jsonserializable.jsonserialize.php
-     *
-     * @return  array   data which can be serialized by json_encode, which is a value of any type other than a resource.
-     */
-    function jsonSerialize()
-    {
-        return [
-            'id'        => $this->getId(),
-            'username'  => $this->getUsername(),
-            'firstname' => $this->getFirstname(),
-            'surname'   => $this->getSurname(),
-            'email'     => $this->getEmail(),
-            'roles'     => $this->getRoles(),
-            'createdAt' => $this->getCreatedAtJson(),
-            'createdBy' => $this->getCreatedBy(),
-            'updatedAt' => $this->getUpdatedAtJson(),
-            'updatedBy' => $this->getUpdatedBy(),
-        ];
-    }
-
-    /**
      * Checks whether the user's account has expired.
      *
      * Internally, if this method returns false, the authentication system
      * will throw an AccountExpiredException and prevent login.
      *
-     * @return bool true if the user's account is non expired, false otherwise
-     *
      * @see AccountExpiredException
+     *
+     * @return bool true if the user's account is non expired, false otherwise
      */
     public function isAccountNonExpired()
     {
@@ -442,9 +347,9 @@ class User extends Base implements AdvancedUserInterface, JsonSerializable
      * Internally, if this method returns false, the authentication system
      * will throw a LockedException and prevent login.
      *
-     * @return bool true if the user is not locked, false otherwise
-     *
      * @see LockedException
+     *
+     * @return bool true if the user is not locked, false otherwise
      */
     public function isAccountNonLocked()
     {
@@ -458,9 +363,9 @@ class User extends Base implements AdvancedUserInterface, JsonSerializable
      * Internally, if this method returns false, the authentication system
      * will throw a CredentialsExpiredException and prevent login.
      *
-     * @return bool true if the user's credentials are non expired, false otherwise
-     *
      * @see CredentialsExpiredException
+     *
+     * @return bool true if the user's credentials are non expired, false otherwise
      */
     public function isCredentialsNonExpired()
     {
@@ -474,9 +379,9 @@ class User extends Base implements AdvancedUserInterface, JsonSerializable
      * Internally, if this method returns false, the authentication system
      * will throw a DisabledException and prevent login.
      *
-     * @return bool true if the user is enabled, false otherwise
-     *
      * @see DisabledException
+     *
+     * @return bool true if the user is enabled, false otherwise
      */
     public function isEnabled()
     {
@@ -485,13 +390,20 @@ class User extends Base implements AdvancedUserInterface, JsonSerializable
     }
 
     /**
-     * Removes sensitive data from the user.
+     * Getter for login data. This data is going to be the payload for JWT.
      *
-     * This is important if, at any given point, sensitive information like
-     * the plain-text password is stored on this object.
+     * @return  array
      */
-    public function eraseCredentials()
+    function getLoginData()
     {
-        // TODO: Implement eraseCredentials() method.
+        return [
+            'id'            => $this->getId(),
+            'identifier'    => $this->getIdentifier(),
+            'username'      => $this->getUsername(),
+            'firstname'     => $this->getFirstname(),
+            'surname'       => $this->getSurname(),
+            'email'         => $this->getEmail(),
+            'roles'         => $this->getRoles(),
+        ];
     }
 }

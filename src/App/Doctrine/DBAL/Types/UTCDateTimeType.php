@@ -4,7 +4,7 @@
  *
  * @author  TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
-namespace App\DoctrineExtensions\DBAL\Types;
+namespace App\Doctrine\DBAL\Types;
 
 // Doctrine components
 use Doctrine\DBAL\Platforms\AbstractPlatform;

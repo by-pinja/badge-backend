@@ -6,11 +6,8 @@
  */
 namespace App\Controllers;
 
-// Application components
-use App\Services\Badge as BadgeService;
-
 /**
- * Class BadgeController
+ * Class Badge
  *
  * This handles following route handling on application:
  *  GET /badge/
@@ -19,32 +16,20 @@ use App\Services\Badge as BadgeService;
  *  PUT /badge/:id
  *  DELETE /badge/:id
  *
+ * @mountPoint  /badge
+ *
  * @category    Controller
  * @package     App\Controllers
  * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
-class BadgeController extends Rest
+class Badge extends Rest
 {
     /**
      * Service that controller is using.
      *
-     * @var BadgeService
+     * @var \App\Services\Author
      */
     protected $service;
-
-    /**
-     * Method to register all routes for current controller.
-     *
-     * @return void
-     */
-    public function registerRoutes()
-    {
-        $this->controllers->get('/', [$this, 'find']);
-        $this->controllers->get('/{id}', [$this, 'findOne']);
-        $this->controllers->post('/', [$this, 'create']);
-        $this->controllers->put('/{id}', [$this, 'update']);
-        $this->controllers->delete('/{id}', [$this, 'delete']);
-    }
 
     /**
      * Method to expose necessary services for controller use.
@@ -53,6 +38,6 @@ class BadgeController extends Rest
      */
     public function exposeServices()
     {
-        $this->service = $this->app['badge.service'];
+        $this->service = $this->app['service.Badge'];
     }
 }

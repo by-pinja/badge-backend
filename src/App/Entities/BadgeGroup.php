@@ -6,15 +6,15 @@
  */
 namespace App\Entities;
 
-// Native components
-use JsonSerializable;
+// Application components
+use App\Doctrine\Behaviours as ORMBehaviors;
 
 // Doctrine components
 use Doctrine\ORM\Mapping as ORM;
 
 // 3rd party components
 use Swagger\Annotations as SWG;
-use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * Class BadgeGroup
@@ -76,10 +76,11 @@ use Knp\DoctrineBehaviors\Model as ORMBehaviors;
  * @package     App\Entities
  * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
-class BadgeGroup extends Base implements JsonSerializable
+class BadgeGroup extends Base
 {
-    use ORMBehaviors\Blameable\Blameable;
-    use ORMBehaviors\Timestampable\Timestampable;
+    // Traits
+    use ORMBehaviors\Blameable;
+    use ORMBehaviors\Timestampable;
 
     /**
      * Badge group id
@@ -87,6 +88,8 @@ class BadgeGroup extends Base implements JsonSerializable
      * @var integer
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "BadgeGroup", "BadgeGroupId"})
+     *
      * @ORM\Column(
      *      name="id",
      *      type="integer",
@@ -103,6 +106,8 @@ class BadgeGroup extends Base implements JsonSerializable
      * @var string
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "BadgeGroup"})
+     *
      * @ORM\Column(
      *      name="name",
      *      type="string",
@@ -118,6 +123,8 @@ class BadgeGroup extends Base implements JsonSerializable
      * @var null|string
      *
      * @SWG\Property()
+     * @JMS\Groups({"Default", "BadgeGroup"})
+     *
      * @ORM\Column(
      *      name="description",
      *      type="text",
@@ -126,6 +133,21 @@ class BadgeGroup extends Base implements JsonSerializable
      *  )
      */
     private $description;
+
+    /**
+     * Group badges
+     *
+     * @var \App\Entities\Badge[]
+     *
+     * @SWG\Property()
+     * @JMS\Groups({"Badges"})
+     *
+     * @ORM\OneToMany(
+     *      targetEntity="App\Entities\Badge",
+     *      mappedBy="badgeGroup"
+     *  )
+     */
+    private $badges;
 
     /**
      * @return int
@@ -152,6 +174,14 @@ class BadgeGroup extends Base implements JsonSerializable
     }
 
     /**
+     * @return Badge[]
+     */
+    public function getBadges()
+    {
+        return $this->badges;
+    }
+
+    /**
      * @param string $name
      *
      * @return BadgeGroup
@@ -173,25 +203,5 @@ class BadgeGroup extends Base implements JsonSerializable
         $this->description = $description;
 
         return $this;
-    }
-
-    /**
-     * Specify data which should be serialized to JSON
-     *
-     * @link  http://php.net/manual/en/jsonserializable.jsonserialize.php
-     *
-     * @return  array   data which can be serialized by json_encode, which is a value of any type other than a resource.
-     */
-    function jsonSerialize()
-    {
-        return [
-            'id'            => $this->getId(),
-            'name'          => $this->getName(),
-            'description'   => $this->getDescription(),
-            'createdAt'     => $this->getCreatedAtJson(),
-            'createdBy'     => $this->getCreatedBy(),
-            'updatedAt'     => $this->getUpdatedAtJson(),
-            'updatedBy'     => $this->getUpdatedBy(),
-        ];
     }
 }

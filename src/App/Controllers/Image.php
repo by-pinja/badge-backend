@@ -6,10 +6,6 @@
  */
 namespace App\Controllers;
 
-// Application components
-use App\Entities\Image;
-use App\Services\Image as ImageService;
-
 // Symfony components
 use Symfony\Component\HttpFoundation\Response;
 
@@ -19,16 +15,18 @@ use Symfony\Component\HttpFoundation\Response;
  * This handles following route handling on application:
  *  GET /image/show/:hash
  *
+ * @mountPoint  /image
+ *
  * @category    Controller
  * @package     App\Controllers
  * @author      TLe, Tarmo Leppänen <tarmo.leppanen@protacon.com>
  */
-class ImageController extends Rest
+class Image extends Rest
 {
     /**
      * Service that controller is using.
      *
-     * @var ImageService
+     * @var \App\Services\Image
      */
     protected $service;
 
@@ -49,7 +47,7 @@ class ImageController extends Rest
      */
     public function exposeServices()
     {
-        $this->service = $this->app['image.service'];
+        $this->service = $this->app['service.Image'];
     }
 
     /**
