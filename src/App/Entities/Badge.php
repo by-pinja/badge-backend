@@ -245,7 +245,7 @@ class Badge extends Base
      * @var \App\Entities\BadgeGroup
      *
      * @SWG\Property()
-     * @JMS\Groups({"BadgeGroup", "BadgeGroupId})
+     * @JMS\Groups({"BadgeGroup", "BadgeGroupId"})
      *
      * @ORM\ManyToOne(targetEntity="App\Entities\BadgeGroup")
      * @ORM\JoinColumns({
@@ -263,7 +263,7 @@ class Badge extends Base
      * @var null|\App\Entities\Image
      *
      * @SWG\Property()
-     * @JMS\Groups({"Image", "ImageId})
+     * @JMS\Groups({"Image", "ImageId"})
      *
      * @ORM\ManyToOne(targetEntity="App\Entities\Image")
      * @ORM\JoinColumns({
@@ -282,7 +282,7 @@ class Badge extends Base
      * @var null|\App\Entities\User
      *
      * @SWG\Property()
-     * @JMS\Groups({"User", "UserId})
+     * @JMS\Groups({"User", "UserId"})
      *
      * @ORM\ManyToOne(targetEntity="App\Entities\User")
      * @ORM\JoinColumns({
