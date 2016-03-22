@@ -357,7 +357,7 @@ class Application extends SilexApplication
         $vars = [
             'DATABASE_DB_OPTIONS_DRIVER'    => 'pdo_mysql',
             'DATABASE_DB_OPTIONS_HOST'      => 'localhost',
-            'DATABASE_DB_OPTIONS_DBNAME'    => 'silex_backend',
+            'DATABASE_DB_OPTIONS_DBNAME'    => 'ptcs_badge',
             'DATABASE_DB_OPTIONS_USER'      => 'silex',
             'DATABASE_DB_OPTIONS_PASSWORD'  => 'silex',
             'DATABASE_DB_OPTIONS_CHARSET'   => 'utf8mb4',
