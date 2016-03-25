@@ -6,6 +6,9 @@
  */
 namespace App\Controllers;
 
+// Application components
+use App\Entities\Image as ImageEntity;
+
 // Symfony components
 use Symfony\Component\HttpFoundation\Response;
 
@@ -63,7 +66,7 @@ class Image extends Rest
         $image = $this->service->findOneByHash($hash);
 
         // Yeah image found
-        if ($image instanceof Image) {
+        if ($image instanceof ImageEntity) {
             $resource = $image->getData();
             $mime = $image->getMime();
             $filename = $image->getFilename();
