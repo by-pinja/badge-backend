@@ -6,12 +6,19 @@
  */
 namespace App\Controllers;
 
+// Application entities
+use App\Entities\Base as Entity;
+
 // Silex components
-use JMS\Serializer\SerializationContext;
 use Silex\Application;
 use Silex\ControllerProviderInterface;
 use Silex\ControllerCollection;
+
+// Symfony components
 use Symfony\Component\HttpFoundation\Response;
+
+// 3rd party components
+use JMS\Serializer\SerializationContext;
 
 /**
  * Class Base
@@ -25,7 +32,7 @@ use Symfony\Component\HttpFoundation\Response;
 abstract class Base implements ControllerProviderInterface, Interfaces\Base
 {
     /**
-     * @var Application
+     * @var \App\Application
      */
     protected $app;
 
@@ -56,19 +63,24 @@ abstract class Base implements ControllerProviderInterface, Interfaces\Base
     /**
      * Helper method to make JSON response.
      *
-     * @param   null|string|Entity|Entity[]    $data
-     * @param   integer                        $statusCode
-     * @param   null|SerializationContext      $context
+     * @param   null|string|Entity|Entity[] $content
+     * @param   integer                     $statusCode
+     * @param   null|SerializationContext   $context
      *
      * @return  Response
      */
-    protected function makeResponse($data, $statusCode = 200, SerializationContext $context = null)
+    protected function makeResponse($content, $statusCode = 200, SerializationContext $context = null)
     {
+        if ($content instanceof Entity ||
+            (is_array($content) && $content[0] instanceof Entity) ||
+            is_array($content)
+        ) {
+            $content = $this->app['serializer']->serialize($content, 'json', $context);
+        }
+
         // Create new response
         $response = new Response();
-        $response->setContent(
-            (empty($data) && is_string($data)) ? '' : $this->app['serializer']->serialize($data, 'json', $context)
-        );
+        $response->setContent($content);
         $response->setStatusCode($statusCode);
         $response->headers->set('Content-Type', 'application/json');
 
