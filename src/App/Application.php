@@ -22,24 +22,21 @@ use Silex\Provider\MonologServiceProvider;
 use Silex\Provider\SecurityJWTServiceProvider;
 use Silex\Provider\ValidatorServiceProvider;
 
+// Symfony components
+use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+
+// Doctrine components
+use Doctrine\DBAL\Types\Type;
+
 // 3rd components
 use Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider;
 use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use Sorien\Provider\PimpleDumpProvider;
 use M1\Vars\Provider\Silex\VarsServiceProvider;
+use Monolog\Formatter\LineFormatter;
 use Knp\DoctrineBehaviors\ORM\Blameable\BlameableSubscriber;
 use Knp\DoctrineBehaviors\ORM\Timestampable\TimestampableSubscriber;
 use Knp\DoctrineBehaviors\Reflection\ClassAnalyzer;
-
-// Symfony components
-use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-
-// Doctrine components
-use Doctrine\DBAL\Types\Type;
 
 /**
  * Class Application
@@ -168,27 +165,7 @@ class Application extends SilexApplication
     protected function listeners()
     {
         $this['dispatcher']->addListener('kernel.exception', function(GetResponseForExceptionEvent $event) {
-            $exception = $event->getException();
-
-            if ($exception instanceof AuthenticationException ||
-                $exception instanceof AccessDeniedException ||
-                $exception instanceof AuthenticationCredentialsNotFoundException ||
-                $exception->getPrevious() instanceof AuthenticationException ||
-                $exception->getPrevious() instanceof AccessDeniedException ||
-                $exception->getPrevious() instanceof AuthenticationCredentialsNotFoundException
-            ) {
-                $responseData = [
-                    'status'    => method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : 401,
-                    'message'   => $exception->getMessage(),
-                    'code'      => $exception->getCode(),
-                ];
-
-                $response = new JsonResponse();
-                $response->setData($responseData);
-                $response->setStatusCode($responseData['status']);
-
-                $event->setResponse($response);
-            }
+            new Listeners\Exception($this['logger'], $event);
         });
     }
 
@@ -209,6 +186,16 @@ class Application extends SilexApplication
         $this->register(new CorsServiceProvider(), $this['vars']->get('cors'));
         $this->register(new SwaggerServiceProvider(), $this['vars']->get('swagger'));
         $this->register(new JmsSerializerServiceProvider(), $this['vars']->get('jms.serializer'));
+
+        $app['monolog'] = $this->share($this->extend('monolog', function($monolog, $app) {
+            foreach ($monolog->getHandlers() as $handler) {
+                /** @var LineFormatter $formatter */
+                $formatter = $handler->getFormatter();
+                $formatter->allowInlineLineBreaks();
+            }
+
+            return $monolog;
+        }));
     }
 
     /**
