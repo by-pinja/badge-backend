@@ -72,7 +72,7 @@ abstract class Base implements ControllerProviderInterface, Interfaces\Base
     protected function makeResponse($content, $statusCode = 200, SerializationContext $context = null)
     {
         if ($content instanceof Entity ||
-            (is_array($content) && $content[0] instanceof Entity) ||
+            (is_array($content) && isset($content[0]) && $content[0] instanceof Entity) ||
             is_array($content)
         ) {
             $content = $this->app['serializer']->serialize($content, 'json', $context);
